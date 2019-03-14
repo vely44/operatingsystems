@@ -4,7 +4,9 @@
 #include <stdio.h>    // file IO, perror()
 #include <string.h>   // str(n)cpy()
 #include <stdbool.h>  // Bool type
-
+#include <unistd.h>
+#include <stdlib.h>
+#include <getopt.h>
 // Function prototypes:
 void print_help();
 void read_file(char *fileName, bool lastLine);
@@ -13,10 +15,60 @@ void print_env(char* envp[]);
 
 int main(int argc, char* argv[], char* envp[]) {
   // If no arguments are given, print help
-  
+  int c;
+  int digit_optind = 0;
   // Set up struct option array long_options[]
-  
+                 static struct option long_options[] = {
+                   {"help",     no_argument, 0, 'h' },
+                   {"file",  required_argument,  0,  'f' },
+                   {"end",  required_argument, 0,  'e' },
+                   {"env", no_argument,       0,  'v' }
+               };
   // Scan the different command-line arguments and options
+
+ while(1)
+        {
+	 int option_index = 0;
+	 c = getopt_long(argc, argv, "hf:e:v",
+                        long_options, &option_index);
+         if (c == -1)
+                   break;
+	 switch (c) {
+               case 'h':
+                   printf("option  %s", long_options[option_index].name);
+                   print_help();
+                   printf("\n");
+                   break;
+
+               case 'f':
+		   printf("option  %s", long_options[option_index].name);
+                   read_file(optarg,0);
+                   printf("\n");
+                   break;
+               case 'e':
+		   printf("option  %s", long_options[option_index].name);
+		   read_file(optarg,1);
+                   printf("\n");
+                   break;
+               case 'v':
+		   printf("option  %s", long_options[option_index].name);
+                   print_env(envp);
+                   printf("\n");
+                   break;
+               default:
+                   printf("?? getopt returned character code 0%o ??\n", c);
+               }
+	}
+
+		     
+           if (optind < argc) {
+               printf("non-option ARGV-elements: ");
+               while (optind < argc)
+                   printf("%s ", argv[optind++]);
+               printf("\n");
+           }
+		 
+		 
   return 0;
 }
 
