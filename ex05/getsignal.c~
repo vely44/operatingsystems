@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <signal.h>
+void myhandle(int mysignal)
+{
+    printf("Handle with signal %d\n",mysignal);
+    signal(SIGCONT,myhandle);
+}
+int main(int argc, char *argv[])
+{
+    
+        
+    int i = 0;
+    signal(SIGCONT, myhandle);
+    while(1)
+{
+    printf("i = %d\n", i);
+    write(i);
+    sleep(1);
+}
+
+    return 0;
+}
