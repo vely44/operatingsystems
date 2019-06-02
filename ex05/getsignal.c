@@ -2,40 +2,41 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <stdlib.h>
 #include <unistd.h>
 
+volatile char character = '0';
 void myhandle(int sig);
- 
 
 int main(void)
 {
-    struct sigaction act;
-    int i =0;
-    long int x = (long)getpid();
-    char y = stroul(x);
-    const char msg[] = "0";
+	struct sigaction act;
+    	
+    	long int x = (long)getpid();
 
-    
-    
-    memset(&act,'\0',sizeof(act));
-    act.sa_handler = myhandle;
-    act.sa_flags = 0;
-    sigemptyset(&act.sa_mask);
+	
+	memset(&act,'\0',sizeof(act)); // Set act to NULL
+    	act.sa_handler = myhandle; // Define the function
+    	act.sa_flags = 0; // No flags
+    	sigemptyset(&act.sa_mask);// No signal masking
 
-    sigaction(SIGINT, &act, NULL);
-      
-    while(1)
-    {
+	sigaction(25, &act, NULL);
 
-    write(STDOUT_FILENO, msg, sizeof(msg)-1);
-    sleep(1);
-    }
+	printf("PID is:%ld \n",x);
 
-    return 0;
+	while(1)
+	{
+	write(1, &character,1);
+	sleep(1);
+	}
+	return 0;
+	
 }
-
 
 void myhandle(int sig)
 {
-    printf("Handle with signal %d\n",sig);
+	if(++character > '9')
+	{
+	character = '0';
+	}
 }
