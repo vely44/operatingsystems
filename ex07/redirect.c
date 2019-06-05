@@ -2,11 +2,11 @@
 #include <unistd.h>  // read(), write()
 #include <ctype.h>   // toupper()
 #include <stdio.h>
+#include <stdlib.h>
+#include<sys/wait.h>
 #define ESC 0x1B
-
-
 int main(void){
-	char letter, teleported_letter,new_letter,another_letter;
+	char letter;
 	int pipe1[2];
 	int pipe2[2];
 
@@ -30,51 +30,41 @@ int main(void){
 		perror("fork");
 		exit(1);
 	case 0: // Kid 
-		//Redirect input from stdin (keyboard) to the stdin of filter 
 		close(pipe1[1]);//NOT USED END
-		read(pipe1[0],teleported_letter,1);// open pipe1 output (read)
-		close(pipe1[0]);//close output USED END
-		printf("Arrived at parent from kid(PIPE1 - WORKING)");
-		//Do filter.c with the teleported_letter
-		//
-		//redirect the stdout from filter to redirect stdout 
 		close(pipe2[0]);//NOT USED END
-		write(pipe2[1],new_letter,1);//open pipe2 input (write)
+		
+		//Do filter.c with the _letter
+		//
+		dup2(pipe1[0],0);//open pipe1 output (read)//read(pipe1[0],teleported_letter,1);
+		dup2(pipe2[1],1);//open pipe2 input (write)//write(pipe2[1],new_letter,1);
+		
+		close(pipe1[0]);//close output USED END
 		close(pipe2[1]);//close input USED END	
-		printf("Send from kid to parent (PIPE2 - WORKING)");
+		execlp("./filter","filter",(char *) NULL);
+		perror("execlp");
+		exit(1);
 		break;
 
 	default:// Parent 
-		//// read first char from stdin
-		read(0, &letter, 1);
-		//Redirect input from stdin (keyboard) to the stdin of filter
+		
 		close(pipe1[0]);//NOT USED END
-		write(pipe1[1],letter,1);//open pipe1 input (write)
-		close(pipe1[1]);//close input USED END
-		printf("Sent from parent to kid(PIPE1 - WORKING)");
-		//Wait now? 
-		//
-		//redirect the stdout from filter to redirect stdout 
 		close(pipe2[1]);//NOT USED END
-		read(pipe2[0],another_letter,1);// open pipe2 output (read)
-		close(pipe2[0]);//close output USED END	
-		printf("Arrived at parrent from kid(PIPE2 - WORKING)");
-
+			
+		while(letter!=ESC)
+		{
+			read(0,&letter,1);
+			write(pipe1[1],&letter,1);//Redirect input from stdin (keyboard) to the stdin of filter
+			read(pipe2[0],&letter,1);//redirect the stdout from filter to redirect stdout 
+			write(1,&letter,1);
+		}
 		wait(NULL);//the kid...
+		close(pipe1[1]);//close input USED END
+		close(pipe2[0]);//close output USED END
+		break;
 
 
-
+		}
 	
-	while(letter!=ESC){
-	
-
-
-	
-
-	
-
-	read(0, &letter, 1); //read next char
-	}
 	return 0;
 }
 
