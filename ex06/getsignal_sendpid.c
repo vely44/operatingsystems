@@ -27,6 +27,8 @@ int main(void)
 	sigaction(25, &act, NULL);
 	
 	printf("PID is:%d \n",x);
+	//Turn on the pipe
+	mkfifo("PIDpipe", S_IFIFO | 0666);//  Create  FIFO; permissions: u/g/o r
 	//FIFO 
 	file=open("PIDpipe", O_WRONLY);
 	write(file, &x, sizeof(x));
