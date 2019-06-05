@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-	pid_t x = atoi(argv[1]);//read argument (PID)
+	pid_t x = atoi(argv[1]);//convert argument (PID)
 	
 	while(1)
 	{
